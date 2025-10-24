@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>{{ 'Editar libro' if libro else 'Nuevo libro' }}</h2>
+    <form method="post" class="form">
+      <label>Título</label>
+      <input name="titulo" required value="{{ libro.titulo if libro else '' }}">
+
+      <label>Autor(es) (separar por ';')</label>
+      <input name="autores" value="{{ libro.autores if libro else '' }}">
+
+      <label>Páginas</label>
+      <input name="paginas" type="number" value="{{ libro.paginas if libro else '' }}">
+
+      <label>ISBN</label>
+      <input name="isbn" value="{{ libro.isbn if libro else '' }}">
+
+      <label>Asignatura</label>
+      <select name="asignatura" required>
+        <option value="">Seleccione una asignatura</option>
+        {% for asignatura in [
+          "Programación I",
+          "Lógica", 
+          "Sistemas en la Empresa",
+          "Organización de Computadoras",
+          "Programación II",
+          "Matemática Discreta",
+          "Requisitos de Software",
+          "Sistemas Operativos",
+          "Programación III",
+          "Testeo y Prueba de Software",
+          "Base de Datos",
+          "Elementos de Computación en Red",
+          "Proyecto de Construcción de Software",
+          "Programación de Base de Datos",
+          "Seguridad Informática",
+          "Programación en Ambiente de Redes"
+        ] %}
+          <option value="{{ asignatura }}" 
+            {% if libro and libro.asignatura == asignatura %}selected{% endif %}>
+            {{ asignatura }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Guardar</button>
+        <a class="btn ghost" href="{{ url_for('listar_libros') }}">Volver</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

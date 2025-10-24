@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>Buscar libro por título</h2>
+    
+    <form method="post" class="form">
+      <label>Ingrese el título o parte del título:</label>
+      <input name="titulo" placeholder="Ej: Programación Python..." required>
+      <div class="form-actions">
+        <button class="btn" type="submit">Buscar</button>
+        <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+      </div>
+    </form>
+
+    {% if libro %}
+      <div class="result">
+        <h3>Resultado encontrado:</h3>
+        <div class="list-item">
+          <div>
+            <div class="title">{{ libro.titulo }}</div>
+            <div class="meta">
+              <strong>Autor(es):</strong> {{ libro.autores or '—' }}<br>
+              <strong>Páginas:</strong> {{ libro.paginas or '—' }} • 
+              <strong>ISBN:</strong> {{ libro.isbn or '—' }}<br>
+              <strong>Asignatura:</strong> {{ libro.asignatura or '—' }}
+            </div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="{{ url_for('editar_libro', libro_id=libro.id) }}">Editar</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

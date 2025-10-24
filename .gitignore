@@ -1,0 +1,73 @@
+# ===== PYTHON =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ===== BASE DE DATOS =====
+# SQLite (para pruebas/desarrollo)
+*.db
+*.sqlite
+*.sqlite3
+
+# MySQL (archivos temporales y binarios)
+*.myd
+*.myi
+*.ndb
+*.frm
+*.ibd
+mysql-bin.*
+mysql-slow.log
+
+# Backups y dumps
+*.sql.gz
+*.sql.bz2
+backup/
+dumps/
+
+# ===== VARIABLES DE ENTORNO =====
+.env
+.env.local
+.env.production
+.secrets
+config.ini
+config.local.ini
+
+# ===== LOGS =====
+*.log
+logs/
+mysql.log
+
+# ===== SISTEMA OPERATIVO =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== IDEs =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== ARCHIVOS TEMPORALES =====
+*.tmp
+*.temp
+.cache/
+
+# ===== BUILD/DISTRIBUCIÓN =====
+dist/
+build/

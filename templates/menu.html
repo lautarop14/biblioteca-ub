@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>Menú de administración</h2>
+    <div class="grid">
+      <a class="tile" href="{{ url_for('listar_libros') }}">📚 Mostrar libros</a>
+      <a class="tile" href="{{ url_for('nuevo_libro') }}">➕ Dar de alta libro</a>
+      <a class="tile" href="{{ url_for('buscar_titulo') }}">📖 Buscar por título</a>
+      <a class="tile" href="{{ url_for('buscar_autor') }}">👤 Buscar por autor</a>
+      <a class="tile" href="{{ url_for('buscar_asignatura') }}">🏷️ Buscar por asignatura</a>
+      <a class="tile" href="{{ url_for('listar_autores') }}">👥 Listar autores</a>
+      <a class="tile" href="{{ url_for('cambiar_password') }}">🔐 Cambiar contraseña</a>
+      <a class="tile danger" href="{{ url_for('logout') }}">🔒 Cerrar sesión</a>
+    </div>
+  </div>
+{% endblock %}

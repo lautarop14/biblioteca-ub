@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>Libros</h2>
+    <div class="list">
+      {% if libros %}
+        {% for l in libros %}
+          <div class="list-item">
+            <div>
+              <div class="title">{{ l.titulo }}</div>
+              <div class="meta">Autor(es): {{ l.autores or '—' }} • ISBN: {{ l.isbn or '—' }}</div>
+            </div>
+            <div class="actions">
+              <a class="btn" href="{{ url_for('editar_libro', libro_id=l.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('eliminar_libro', libro_id=l.id) }}" onsubmit="return confirm('¿Eliminar este libro?')">
+                <button class="btn danger" type="submit">Eliminar</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No hay libros registrados.</p>
+      {% endif %}
+    </div>
+    
+    <div class="form-actions" style="margin-top: 2rem;">
+      <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>Iniciar sesión</h2>
+    <form method="post">
+      <label>Usuario</label>
+      <input name="usuario" required>
+      <label>Contraseña</label>
+      <input name="password" type="password" required>
+      <button type="submit">Ingresar</button>
+    </form>
+    <p class="muted">Credenciales por defecto: <strong>admin / admin123</strong></p>
+  </div>
+{% endblock %}

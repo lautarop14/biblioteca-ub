@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>Autores</h2>
+    {% if autores %}
+      <ul class="simple-list">
+        {% for a in autores %}<li>{{ a }}</li>{% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay autores registrados.</p>
+    {% endif %}
+    
+    <div class="form-actions" style="margin-top: 2rem;">
+      <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+    </div>
+  </div>
+{% endblock %}
+

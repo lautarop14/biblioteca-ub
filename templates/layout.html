@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Biblioteca</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <h1>📚 Biblioteca de Tecnicatura en Programación</h1>
+      </div>
+      {% if session.get('logged_in') %}
+      <nav class="menu">
+        <a class="logout" href="{{ url_for('logout') }}">Salir</a>
+      </nav>
+      {% endif %}
+    </header>
+
+    <main class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="alerts">
+            {% for cat, msg in messages %}
+              <div class="alert {{ cat }}">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <small>Proyecto de Construcción de Software - UB</small>
+    </footer>
+  </div>
+</body>
+</html>

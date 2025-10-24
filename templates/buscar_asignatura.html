@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <h2>Buscar libros por asignatura</h2>
+    
+    <form method="post" class="form">
+      <label>Seleccione la asignatura:</label>
+      <select name="asignatura" required>
+        <option value="">Seleccione una asignatura</option>
+        {% for asignatura in [
+          "Programación I",
+          "Lógica", 
+          "Sistemas en la Empresa",
+          "Organización de Computadoras",
+          "Programación II",
+          "Matemática Discreta",
+          "Requisitos de Software",
+          "Sistemas Operativos",
+          "Programación III",
+          "Testeo y Prueba de Software",
+          "Base de Datos",
+          "Elementos de Computación en Red",
+          "Proyecto de Construcción de Software",
+          "Programación de Base de Datos",
+          "Seguridad Informática",
+          "Programación en Ambiente de Redes"
+        ] %}
+          <option value="{{ asignatura }}">{{ asignatura }}</option>
+        {% endfor %}
+      </select>
+      
+      <div class="form-actions">
+        <button class="btn" type="submit">Buscar</button>
+        <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+      </div>
+    </form>
+
+    {% if libros %}
+      <div class="result">
+        <h3>Libros encontrados:</h3>
+        <div class="list">
+          {% for libro in libros %}
+            <div class="list-item">
+              <div>
+                <div class="title">{{ libro.titulo }}</div>
+                <div class="meta">
+                  <strong>Autor(es):</strong> {{ libro.autores or '—' }}<br>
+                  <strong>Páginas:</strong> {{ libro.paginas or '—' }} • 
+                  <strong>ISBN:</strong> {{ libro.isbn or '—' }}<br>
+                  <strong>Asignatura:</strong> {{ libro.asignatura or '—' }}
+                </div>
+              </div>
+              <div class="actions">
+                <a class="btn" href="{{ url_for('editar_libro', libro_id=libro.id) }}">Editar</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
