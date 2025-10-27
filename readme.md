@@ -28,7 +28,7 @@ Sistema de gestión bibliotecaria desarrollado en Python con Flask y MySQL para 
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/biblioteca-ub.git
+git clone https://github.com/lautarop14/biblioteca-ub.git
 cd biblioteca-ub/proyecto_biblioteca
 2. Configurar la base de datos
 sql
@@ -259,7 +259,7 @@ Añadir funciones en biblioteca_core.py
 Crear plantillas en templates/
 
 📄 Licencia
-Este proyecto fue desarrollado con fines educativos para la Tecnicatura en Programación de la Universidad de Buenos Aires.
+Este proyecto fue desarrollado con fines educativos para la Tecnicatura en Programación de la Universidad de Belgrano.
 
 🆘 Soporte
 Si encuentras problemas:
