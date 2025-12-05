@@ -6,9 +6,8 @@ import os
 import biblioteca_core as core  # importa tus funciones modulares
 
 app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_SECRET', 'cambiame_en_produccion')
+app.secret_key = os.getenv('FLASK_SECRET', 'admin123')
 
-# Crear tablas si no existen (opcional: se ejecuta al iniciar)
 core.crear_tablas()
 
 @app.route('/')
@@ -115,7 +114,7 @@ def editar_libro(libro_id):
     libro = core.buscar_libro_por_titulo_by_id = None
     # Cargar datos del libro por id
     libro = None
-    # Reutilizamos la consulta existente: hacer SELECT por id
+
     conn = core.crear_conexion()
     if conn:
         cur = conn.cursor(dictionary=True)
@@ -176,10 +175,10 @@ def buscar_autor():
     libros = []  # Cambiar de libros_por_autor a libros
     if request.method == 'POST':
         autor = request.form.get('autor','').strip()
-        libros = core.listar_libros_por_autor(autor)  # Ahora devuelve lista completa
+        libros = core.listar_libros_por_autor(autor) 
         if not libros:
             flash('No se encontraron libros de ese autor.', 'warning')
-    return render_template('buscar_autor.html', libros=libros)  # Cambiar aquí
+    return render_template('buscar_autor.html', libros=libros)  
 
 @app.route('/buscar/asignatura', methods=['GET','POST'])
 def buscar_asignatura():
@@ -188,10 +187,10 @@ def buscar_asignatura():
     libros = []  # Cambiar de libros_por_asignatura a libros
     if request.method == 'POST':
         asign = request.form.get('asignatura','').strip()
-        libros = core.listar_libros_por_asignatura(asign)  # Ahora devuelve lista completa
+        libros = core.listar_libros_por_asignatura(asign)
         if not libros:
             flash('No se encontraron libros de esa asignatura.', 'warning')
-    return render_template('buscar_asignatura.html', libros=libros)  # Cambiar aquí
+    return render_template('buscar_asignatura.html', libros=libros)  
 
 @app.route('/cambiar_password', methods=['GET','POST'])
 def cambiar_password():
@@ -214,7 +213,6 @@ def cambiar_password():
             flash(msg, 'danger')
     return render_template('cambiar_password.html')
 
-# Agrega esto temporalmente en app.py después de importar core
 @app.route('/limpiar_autores')
 def limpiar_autores():
     if not session.get('logged_in'):
