@@ -1,0 +1,22 @@
+
+    ========================================
+    REPORTE DE PRUEBAS DE ACEPTACIÓN
+    ========================================
+    
+    Pruebas ejecutadas:
+    1. test_login.py - Login de usuarios
+    2. test_logout.py - Logout del sistema
+    3. test_cambiar_password.py - Cambio de contraseña
+    4. test_abm_libros.py - ABM completo de libros
+    5. test_listar_autores.py - Listado de autores
+    6. test_busqueda_titulo.py - Busqueda por titulo
+    7. test_busqueda_autor.py - Busqueda por autor
+    8. test_busqueda_asignatura.py - Busqueda por asignatura
+    
+    ========================================
+    INSTRUCCIONES:
+    - Reporte HTML: report.html
+    - Capturas de error: carpeta screenshots/
+    - Ejecutar prueba individual: pytest nombre_prueba.py -v
+    ========================================
+    
