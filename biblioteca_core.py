@@ -190,6 +190,7 @@ def insertar_libro_dict(titulo, autores_list, paginas=None, isbn=None, asignatur
 
 def buscar_libro_por_titulo(titulo_parcial):
     conexion = crear_conexion()
+    libros = []
     if conexion:
         try:
             cursor = conexion.cursor(dictionary=True)
@@ -201,12 +202,22 @@ def buscar_libro_por_titulo(titulo_parcial):
                 LEFT JOIN autores a ON la.autor_id = a.id
                 WHERE l.titulo LIKE %s
                 GROUP BY l.id
-                LIMIT 1
+                ORDER BY l.titulo
             """, (f'%{titulo_parcial}%',))
-            libro = cursor.fetchone()
+            resultados = cursor.fetchall()
+            for libro in resultados:
+                autores = libro['autores'].split('; ') if libro['autores'] else []
+                libros.append({
+                    'id': libro['id'],
+                    'titulo': libro['titulo'],
+                    'autor': autores,
+                    'autores': libro['autores'] or '',
+                    'paginas': libro['paginas'],
+                    'isbn': libro['isbn'],
+                    'asignatura': libro['asignatura'] or ''
+                })
             cursor.close()
             conexion.close()
-            return libro
         except Error as e:
             print(f"Error al buscar libro: {e}")
             try:
@@ -214,8 +225,7 @@ def buscar_libro_por_titulo(titulo_parcial):
             except:
                 pass
             conexion.close()
-            return None
-    return None
+    return libros
 
 def eliminar_libro_por_id(libro_id):
     conexion = crear_conexion()
@@ -468,6 +478,8 @@ def verificar_login_usuario(usuario, password):
             return False, None
 
 def cambiar_password_usuario(usuario_actual, password_actual, nueva_password):
+    if len(nueva_password.strip()) < 4:
+        return False, "La contraseña debe tener al menos 4 caracteres"
     conexion = crear_conexion()
     if conexion:
         try:
