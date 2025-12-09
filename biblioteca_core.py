@@ -294,22 +294,20 @@ def limpiar_todos_autores_huerfanos():
             return 0
     return 0
 
-def modificar_libro_por_id(libro_id, nuevo_titulo, nuevos_autores_list, nuevo_isbn=None, nueva_asignatura=''):
+def modificar_libro_por_id(libro_id, nuevo_titulo, nuevos_autores_list, nuevo_isbn=None, nueva_asignatura='', nuevas_paginas=None):
     conexion = crear_conexion()
     if conexion:
         try:
             cursor = conexion.cursor()
-            
-            # PRIMERO: obtener los autores antiguos ANTES de eliminar las relaciones
+            # Obtener los autores antiguos ANTES de eliminar las relaciones 
             cursor.execute("SELECT autor_id FROM libro_autor WHERE libro_id = %s", (libro_id,))
             autores_antiguos = [row[0] for row in cursor.fetchall()]
             
             # Actualizar libro
             cursor.execute(
-                "UPDATE libros SET titulo = %s, isbn = %s, asignatura = %s WHERE id = %s",
-                (nuevo_titulo, nuevo_isbn, nueva_asignatura, libro_id)
+                "UPDATE libros SET titulo = %s, paginas = %s, isbn = %s, asignatura = %s WHERE id = %s",
+                (nuevo_titulo, nuevas_paginas, nuevo_isbn, nueva_asignatura, libro_id)
             )
-            
             # Eliminar relaciones antiguas
             cursor.execute("DELETE FROM libro_autor WHERE libro_id = %s", (libro_id,))
             
@@ -326,7 +324,7 @@ def modificar_libro_por_id(libro_id, nuevo_titulo, nuevos_autores_list, nuevo_is
                 cursor.execute("INSERT INTO libro_autor (libro_id, autor_id) VALUES (%s, %s)", (libro_id, autor_id))
                 nuevos_autores_ids.append(autor_id)
             
-            # Eliminar autores huérfanos (los que estaban antes pero no están en los nuevos)
+            # Eliminar autores huérfanos
             autores_eliminados = 0
             for autor_id_antiguo in autores_antiguos:
                 if autor_id_antiguo not in nuevos_autores_ids:
@@ -354,7 +352,7 @@ def modificar_libro_por_id(libro_id, nuevo_titulo, nuevos_autores_list, nuevo_is
             conexion.close()
             return False
     return False
-
+    
 def listar_autores_db():
     # Primero limpiar autores huérfanos antes de listar
     limpiar_todos_autores_huerfanos()
