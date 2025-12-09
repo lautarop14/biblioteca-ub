@@ -185,10 +185,11 @@ class FakeCursor:
 
         # update libros set titulo...
         if q.startswith("update libros set titulo"):
-            nuevo_titulo, nuevo_isbn, nueva_asignatura, lid = params
+            nuevo_titulo, nuevas_paginas, nuevo_isbn, nueva_asignatura, lid = params
             for l in self.state['libros']:
                 if l['id'] == lid:
                     l['titulo'] = nuevo_titulo
+                    l['paginas'] = nuevas_paginas
                     l['isbn'] = nuevo_isbn
                     l['asignatura'] = nueva_asignatura
                     self.rowcount = 1
