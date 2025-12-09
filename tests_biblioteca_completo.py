@@ -298,7 +298,7 @@ def test_cambiar_password_actual_incorrecta(monkeypatch):
     ok, msg = core.cambiar_password_usuario('admin', 'bad', 'nuevapw')
     assert not ok and msg == "Contraseña actual incorrecta"
 
-def test_cambiar_password_actual_invalida(monkeypatch):
+def test_cambiar_password_nueva_invalida(monkeypatch):
     state = fresh_state()
     monkeypatch.setattr(core, 'crear_conexion', lambda: make_conn(state))
     ok, msg = core.cambiar_password_usuario('admin', 'admin123', 'nu')
