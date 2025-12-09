@@ -22,9 +22,10 @@
         <p>No hay libros registrados.</p>
       {% endif %}
     </div>
-    
+
     <div class="form-actions" style="margin-top: 2rem;">
       <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+      <a class="btn" href="{{ url_for('nuevo_libro') }}">Agregar libro</a>
     </div>
   </div>
 {% endblock %}
