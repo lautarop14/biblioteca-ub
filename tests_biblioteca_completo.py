@@ -234,7 +234,7 @@ def fresh_state():
             {'id':1,'usuario':'admin','password_hash': hashlib.sha256('admin123'.encode()).hexdigest(),'nombre_completo':'Admin'}
         ],
         'libros':[
-            {'id':1,'titulo':'Python Básico','paginas':200,'isbn':1234567890123,'asignatura':'Programación'}
+            {'id':1,'titulo':'Python Básico','paginas':200,'isbn':1234567890123,'asignatura':'Programación I'}
         ],
         'autores':[{'id':1,'nombre':'Juan Perez'}],
         'libro_autor':[{'libro_id':1,'autor_id':1}]
@@ -298,6 +298,12 @@ def test_cambiar_password_actual_incorrecta(monkeypatch):
     ok, msg = core.cambiar_password_usuario('admin', 'bad', 'nuevapw')
     assert not ok and msg == "Contraseña actual incorrecta"
 
+def test_cambiar_password_actual_invalida(monkeypatch):
+    state = fresh_state()
+    monkeypatch.setattr(core, 'crear_conexion', lambda: make_conn(state))
+    ok, msg = core.cambiar_password_usuario('admin', 'admin123', 'nu')
+    assert not ok and msg == "La nueva contraseña debe tener al menos 4 caracteres"
+
 def test_listar_libros(monkeypatch):
     state = fresh_state()
     monkeypatch.setattr(core, 'crear_conexion', lambda: make_conn(state))
@@ -359,7 +365,7 @@ def test_busqueda_por_titulo_no_exitosa(monkeypatch):
     state = fresh_state()
     monkeypatch.setattr(core, 'crear_conexion', lambda: make_conn(state))
     libro = core.buscar_libro_por_titulo('NoExiste')
-    assert libro is None
+    assert libro == []
 
 def test_busqueda_por_autor_exitosa(monkeypatch):
     state = fresh_state()
@@ -376,7 +382,7 @@ def test_busqueda_por_autor_no_exitosa(monkeypatch):
 def test_busqueda_por_asignatura_con_eleccion(monkeypatch):
     state = fresh_state()
     monkeypatch.setattr(core, 'crear_conexion', lambda: make_conn(state))
-    libros = core.listar_libros_por_asignatura('Programación')
+    libros = core.listar_libros_por_asignatura('Programación I')
     assert isinstance(libros, list) and len(libros)>=1
 
 def test_busqueda_por_asignatura_sin_eleccion(monkeypatch):
