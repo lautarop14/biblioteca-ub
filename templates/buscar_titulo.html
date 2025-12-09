@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
   <div class="card">
-    <h2>Buscar libro por título</h2>
-    
+    <h2>Buscar libros por título</h2>
+
     <form method="post" class="form">
       <label>Ingrese el título o parte del título:</label>
       <input name="titulo" placeholder="Ej: Programación Python..." required>
@@ -12,22 +12,26 @@
       </div>
     </form>
 
-    {% if libro %}
+    {% if libros %}
       <div class="result">
-        <h3>Resultado encontrado:</h3>
-        <div class="list-item">
-          <div>
-            <div class="title">{{ libro.titulo }}</div>
-            <div class="meta">
-              <strong>Autor(es):</strong> {{ libro.autores or '—' }}<br>
-              <strong>Páginas:</strong> {{ libro.paginas or '—' }} • 
-              <strong>ISBN:</strong> {{ libro.isbn or '—' }}<br>
-              <strong>Asignatura:</strong> {{ libro.asignatura or '—' }}
+        <h3>Libros encontrados:</h3>
+        <div class="list">
+          {% for libro in libros %}
+            <div class="list-item">
+              <div>
+                <div class="title">{{ libro.titulo }}</div>
+                <div class="meta">
+                  <strong>Autor(es):</strong> {{ libro.autores or '—' }}<br>
+                  <strong>Páginas:</strong> {{ libro.paginas or '—' }} •
+                  <strong>ISBN:</strong> {{ libro.isbn or '—' }}<br>
+                  <strong>Asignatura:</strong> {{ libro.asignatura or '—' }}
+                </div>
+              </div>
+              <div class="actions">
+                <a class="btn" href="{{ url_for('editar_libro', libro_id=libro.id) }}">Editar</a>
+              </div>
             </div>
-          </div>
-          <div class="actions">
-            <a class="btn" href="{{ url_for('editar_libro', libro_id=libro.id) }}">Editar</a>
-          </div>
+          {% endfor %}
         </div>
       </div>
     {% endif %}
