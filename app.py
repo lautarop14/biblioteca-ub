@@ -105,13 +105,13 @@ def editar_libro(libro_id):
         isbn = request.form.get('isbn') or None
         asignatura = request.form.get('asignatura','').strip()
         autores = [a.strip() for a in autores_input.split(';') if a.strip()]
-        ok = core.modificar_libro_por_id(libro_id, titulo, autores, isbn, asignatura)
+        paginas = request.form.get('paginas') or None
+        ok = core.modificar_libro_por_id(libro_id, titulo, autores, isbn, asignatura, paginas)
         if ok:
             flash('Libro modificado.', 'success')
             return redirect(url_for('listar_libros'))
         else:
             flash('Error al modificar libro.', 'danger')
-    libro = core.buscar_libro_por_titulo_by_id = None
     # Cargar datos del libro por id
     libro = None
 
@@ -160,13 +160,13 @@ def listar_autores():
 def buscar_titulo():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    libro = None
+    libros = []
     if request.method == 'POST':
         titulo = request.form.get('titulo','').strip()
-        libro = core.buscar_libro_por_titulo(titulo)
-        if not libro:
+        libros = core.buscar_libro_por_titulo(titulo)
+        if not libros:
             flash('Libro no encontrado.', 'warning')
-    return render_template('buscar_titulo.html', libro=libro)
+    return render_template('buscar_titulo.html', libros=libros)
 
 @app.route('/buscar/autor', methods=['GET','POST'])
 def buscar_autor():
