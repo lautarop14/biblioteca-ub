@@ -18,16 +18,18 @@ CREATE TABLE IF NOT EXISTS bibliotecarios (
     usuario VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     nombre_completo VARCHAR(100) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS libros (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
-    paginas INT,
+    paginas INT UNSIGNED,
     isbn BIGINT,
     asignatura VARCHAR(255),
-    UNIQUE KEY unique_isbn (isbn)
+    UNIQUE KEY unique_isbn (isbn),
+    disponible BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS autores (
@@ -43,6 +45,10 @@ CREATE TABLE IF NOT EXISTS libro_autor (
     FOREIGN KEY (autor_id) REFERENCES autores(id) ON DELETE CASCADE
 );
 
-INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo)
-SELECT 'admin', SHA2('admin123', 256), 'Administrador Principal'
+INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo, admin)
+SELECT 'admin', SHA2('admin123', 256), 'Administrador Principal', TRUE
 WHERE NOT EXISTS (SELECT 1 FROM bibliotecarios WHERE usuario = 'admin');
+
+INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo)
+SELECT 'lautarop', SHA2('laupaz14', 256), 'Lautaro Paz'
+WHERE NOT EXISTS (SELECT 1 FROM bibliotecarios WHERE usuario = 'lautarop');
