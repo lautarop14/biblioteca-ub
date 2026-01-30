@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="card">
+    <h2>Registrar Devolución</h2>
+    
+    <div class="libro-info">
+        <h3>{{ libro.titulo }}</h3>
+        <p><strong>Autor(es):</strong> {{ libro.autores or 'No especificado' }}</p>
+        <p><strong>Estado:</strong> 
+            <span class="{% if not libro.disponible %}prestado{% else %}disponible{% endif %}">
+                {% if not libro.disponible %}📚 Prestado{% else %}✅ Disponible{% endif %}
+            </span>
+        </p>
+    </div>
+
+    {% if not libro.disponible %}
+    <form method="post" class="form" onsubmit="return confirm('¿Confirmar devolución del libro?')">
+        <div class="alert info">
+            <p>📝 Esta acción marcará el libro como disponible para nuevos préstamos.</p>
+        </div>
+        
+        <div class="form-actions">
+            <button class="btn" type="submit">Confirmar Devolución</button>
+            <a class="btn ghost" href="{{ url_for('listar_prestamos') }}">Cancelar</a>
+        </div>
+    </form>
+    {% else %}
+    <div class="alert warning">
+        <p>ℹ️ Este libro ya se encuentra disponible en la biblioteca.</p>
+        <p>No es necesario registrar una devolución.</p>
+    </div>
+    
+    <div class="form-actions">
+        <a class="btn" href="{{ url_for('listar_libros') }}">Volver a la lista</a>
+        <a class="btn ghost" href="{{ url_for('listar_prestamos') }}">Ver préstamos activos</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="card">
+    <h2>👥 Gestión de Usuarios</h2>
+    
+    <div class="form-actions" style="margin-bottom: 1.5rem;">
+        <a class="btn" href="{{ url_for('nuevo_usuario') }}">➕ Nuevo Usuario Lector</a>
+        <a class="btn ghost" href="{{ url_for('menu') }}">Volver al Menú</a>
+    </div>
+    
+    {% if usuarios %}
+    <div class="list">
+        {% for u in usuarios %}
+        <div class="list-item">
+            <div>
+                <div class="title">{{ u.usuario }}</div>
+                <div class="meta">
+                    <strong>Nombre:</strong> {{ u.nombre_completo }}<br>
+                    <strong>Rol:</strong> 
+                    <span class="{% if u.admin %}disponible{% else %}no-disponible{% endif %}">
+                        {{ 'Administrador' if u.admin else 'Lector' }}
+                    </span>
+                    • <strong>Creado:</strong> {{ u.fecha_creacion.strftime('%d/%m/%Y') }}
+                </div>
+            </div>
+            <div class="actions">
+                {% if not u.admin and u.usuario != session.usuario %}
+                <form method="post" action="{{ url_for('eliminar_usuario', usuario_id=u.id) }}" 
+                      onsubmit="return confirm('¿Eliminar al usuario {{ u.usuario }}?')" style="display: inline;">
+                    <button class="btn danger" type="submit">Eliminar</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No hay usuarios registrados.</p>
+    {% endif %}
+</div>
+{% endblock %}

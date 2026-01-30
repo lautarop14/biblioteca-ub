@@ -1,31 +1,58 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <div class="card">
+<div class="card">
     <h2>Libros</h2>
     <div class="list">
-      {% if libros %}
-        {% for l in libros %}
-          <div class="list-item">
-            <div>
-              <div class="title">{{ l.titulo }}</div>
-              <div class="meta">Autor(es): {{ l.autores or '—' }} • ISBN: {{ l.isbn or '—' }}</div>
+        {% if libros %}
+            {% for libro in libros %}
+            <div class="list-item">
+                <div>
+                    <div class="title">{{ libro.titulo }}</div>
+                    <div class="meta">
+                        <strong>Autor(es):</strong> {{ libro.autores or '—' }}<br>
+                        <strong>ISBN:</strong> {{ libro.isbn or '—' }} • 
+                        <strong>Asignatura:</strong> {{ libro.asignatura or '—' }}<br>
+                        <strong>Estado:</strong> 
+                        <span class="{% if libro.disponible %}disponible{% else %}no-disponible{% endif %}">
+                            {% if libro.disponible %}✅ Disponible{% else %}❌ No disponible{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="actions">
+                    <!-- Botón SOLICITAR PRÉSTAMO para todos los usuarios logueados -->
+                    {% if libro.disponible %}
+                    <a class="btn" href="{{ url_for('solicitar_prestamo', libro_id=libro.id) }}">Solicitar Préstamo</a>
+                    {% else %}
+                        <!-- Mostrar botón VER PRÉSTAMOS solo para ADMIN -->
+                        {% if session.rol == 'admin' %}
+                        <a class="btn" href="{{ url_for('listar_prestamos') }}">Ver préstamos</a>
+                        {% else %}
+                        <span class="btn disabled" style="background-color: #ccc; color: #666; cursor: not-allowed;">No disponible</span>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <!-- Opciones SOLO para ADMINISTRADORES -->
+                    {% if session.rol == 'admin' %}
+                    <a class="btn" href="{{ url_for('editar_libro', libro_id=libro.id) }}">Editar</a>
+                    <form method="post" action="{{ url_for('eliminar_libro', libro_id=libro.id) }}" 
+                          onsubmit="return confirm('¿Eliminar este libro?')" style="display: inline;">
+                        <button class="btn danger" type="submit">Eliminar</button>
+                    </form>
+                    {% endif %}
+                </div>
             </div>
-            <div class="actions">
-              <a class="btn" href="{{ url_for('editar_libro', libro_id=l.id) }}">Editar</a>
-              <form method="post" action="{{ url_for('eliminar_libro', libro_id=l.id) }}" onsubmit="return confirm('¿Eliminar este libro?')">
-                <button class="btn danger" type="submit">Eliminar</button>
-              </form>
-            </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <p>No hay libros registrados.</p>
-      {% endif %}
+            {% endfor %}
+        {% else %}
+            <p>No hay libros registrados.</p>
+        {% endif %}
     </div>
 
     <div class="form-actions" style="margin-top: 2rem;">
-      <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
-      <a class="btn" href="{{ url_for('nuevo_libro') }}">Agregar libro</a>
+        <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+        {% if session.rol == 'admin' %}
+        <a class="btn" href="{{ url_for('nuevo_libro') }}">Agregar libro</a>
+        {% endif %}
+        <a class="btn" href="{{ url_for('listar_prestamos') }}">Ver préstamos activos</a>
     </div>
-  </div>
+</div>
 {% endblock %}

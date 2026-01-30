@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="card">
+    <h2>➕ Nuevo Usuario Lector</h2>
+    <form method="post" class="form">
+        <label>Usuario</label>
+        <input name="usuario" required placeholder="Nombre de usuario">
+        
+        <label>Nombre Completo</label>
+        <input name="nombre_completo" required placeholder="Nombre y apellido">
+        
+        <label>Contraseña</label>
+        <input name="password" type="password" required placeholder="Mínimo 4 caracteres">
+        
+        <label>Confirmar Contraseña</label>
+        <input name="confirmar_password" type="password" required placeholder="Repetir contraseña">
+        
+        <div class="alert info">
+            <p>📝 Se creará un usuario con rol <strong>LECTOR</strong>.</p>
+            <p>Los usuarios lectores solo pueden consultar libros y gestionar préstamos.</p>
+        </div>
+        
+        <div class="form-actions">
+            <button class="btn" type="submit">Crear Usuario</button>
+            <a class="btn ghost" href="{{ url_for('listar_usuarios') }}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

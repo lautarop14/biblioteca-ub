@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="card">
+    <h2>📋 Préstamos Activos y Reservados</h2>
+    
+    {% if prestamos %}
+    <div class="list">
+        {% for p in prestamos %}
+        <div class="list-item">
+            <div>
+                <div class="title">{{ p.titulo }}</div>
+                <div class="meta">
+                    <strong>Autor(es):</strong> {{ p.autores or '—' }}<br>
+                    <strong>Solicitado por:</strong> {{ p.usuario_bibliotecario }}<br>
+                    <strong>Estado:</strong> 
+                    {% if p.estado == 'reservado' %}
+                    <span style="color: #e67e22; font-weight: bold;">
+                        🕒 Reservado (esperando retiro)
+                    </span>
+                    {% elif p.estado == 'activo' %}
+                    <span style="color: #3498db; font-weight: bold;">
+                        📚 Activo (libro retirado)
+                    </span>
+                    {% endif %}<br>
+                    <strong>Fecha solicitud:</strong> {{ p.fecha_prestamo.strftime('%d/%m/%Y') }}<br>
+                    <strong>Devolución estimada:</strong> {{ p.fecha_devolucion_estimada.strftime('%d/%m/%Y') }}
+                </div>
+            </div>
+            <div class="actions">
+                {% if session.rol == 'admin' %}
+                    {% if p.estado == 'reservado' %}
+                    <a class="btn" href="{{ url_for('confirmar_prestamo', libro_id=p.libro_id) }}">
+                        Confirmar Retiro
+                    </a>
+                    {% endif %}
+                    <a class="btn" href="{{ url_for('registrar_devolucion', libro_id=p.libro_id) }}">
+                        Registrar Devolución
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert info">
+        <p>📚 No hay préstamos activos en este momento.</p>
+    </div>
+    {% endif %}
+    
+    <div class="form-actions" style="margin-top: 2rem;">
+        <a class="btn ghost" href="{{ url_for('menu') }}">Volver al menú</a>
+        <a class="btn" href="{{ url_for('listar_libros') }}">Ver todos los libros</a>
+    </div>
+</div>
+{% endblock %}

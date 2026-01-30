@@ -3,17 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Biblioteca</title>
+  <title>Biblioteca UB</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <div class="wrap">
+    
     <header class="top">
       <div class="brand">
         <h1>📚 Biblioteca de Tecnicatura en Programación</h1>
       </div>
+      
       {% if session.get('logged_in') %}
       <nav class="menu">
+        <span style="margin-right: 1rem; color: var(--primary-dark); font-weight: 600;">
+          {{ session.nombre }} ({{ session.rol }})
+        </span>
         <a class="logout" href="{{ url_for('logout') }}">Salir</a>
       </nav>
       {% endif %}
@@ -29,11 +34,13 @@
           </div>
         {% endif %}
       {% endwith %}
+      
       {% block content %}{% endblock %}
     </main>
 
     <footer class="footer">
-      <small>Proyecto de Construcción de Software - UB</small>
+      <p><strong>Proyecto de Construcción de Software</strong> | Universidad de Belgrano 2025</p>
+      <p>© Todos los derechos reservados</p>
     </footer>
   </div>
 </body>

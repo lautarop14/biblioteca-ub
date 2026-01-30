@@ -1,16 +1,44 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <div class="card">
-    <h2>Menú de administración</h2>
+<div class="card">
+    <h2>Menú Principal - Usuario: {{ session.nombre }} ({{ session.rol }})</h2>
+    
     <div class="grid">
-      <a class="tile" href="{{ url_for('listar_libros') }}">📚 Mostrar libros</a>
-      <a class="tile" href="{{ url_for('nuevo_libro') }}">➕ Dar de alta libro</a>
-      <a class="tile" href="{{ url_for('buscar_titulo') }}">📖 Buscar por título</a>
-      <a class="tile" href="{{ url_for('buscar_autor') }}">👤 Buscar por autor</a>
-      <a class="tile" href="{{ url_for('buscar_asignatura') }}">🏷️ Buscar por asignatura</a>
-      <a class="tile" href="{{ url_for('listar_autores') }}">👥 Listar autores</a>
-      <a class="tile" href="{{ url_for('cambiar_password') }}">🔐 Cambiar contraseña</a>
-      <a class="tile danger" href="{{ url_for('logout') }}">🔒 Cerrar sesión</a>
+
+        <a class="tile" href="{{ url_for('listar_libros') }}">
+            <span style="font-size: 1.8rem;">📚</span> Mostrar libros
+        </a>
+        <a class="tile" href="{{ url_for('buscar_titulo') }}">
+            <span style="font-size: 1.8rem;">📖</span> Buscar por título
+        </a>
+        <a class="tile" href="{{ url_for('buscar_autor') }}">
+            <span style="font-size: 1.8rem;">👤</span> Buscar por autor
+        </a>
+        <a class="tile" href="{{ url_for('buscar_asignatura') }}">
+            <span style="font-size: 1.8rem;">🏷️</span> Buscar por asignatura
+        </a>
+        <a class="tile" href="{{ url_for('listar_prestamos') }}">
+            <span style="font-size: 1.8rem;">📋</span> Ver préstamos activos
+        </a>
+        
+        {% if session.rol == 'admin' %}
+        <a class="tile" href="{{ url_for('nuevo_libro') }}">
+            <span style="font-size: 1.8rem;">➕</span> Dar de alta libro
+        </a>
+        <a class="tile" href="{{ url_for('listar_autores') }}">
+            <span style="font-size: 1.8rem;">👥</span> Listar autores
+        </a>
+        <a class="tile" href="{{ url_for('listar_usuarios') }}">
+            <span style="font-size: 1.8rem;">👥</span> Gestión de usuarios
+        </a>
+        {% endif %}
+        
+        <a class="tile" href="{{ url_for('cambiar_password') }}">
+            <span style="font-size: 1.8rem;">🔐</span> Cambiar contraseña
+        </a>
+        <a class="tile danger" href="{{ url_for('logout') }}">
+            <span style="font-size: 1.8rem;">🔒</span> Cerrar sesión
+        </a>
     </div>
-  </div>
+</div>
 {% endblock %}

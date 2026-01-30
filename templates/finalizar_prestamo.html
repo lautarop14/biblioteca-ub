@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="card">
+    <h2>📖 Finalizar Préstamo</h2>
+    
+    <div class="libro-info">
+        <h3>{{ libro.titulo }}</h3>
+        <p><strong>Autor(es):</strong> {{ libro.autores or 'No especificado' }}</p>
+        <p><strong>Estado:</strong> 
+            <span class="no-disponible">
+                ❌ Prestado
+            </span>
+        </p>
+    </div>
+    
+    {% if prestamo %}
+    <div class="prestamo-info" style="background: #f8f9fa; padding: 1.5rem; border-radius: var(--radius); margin: 1.5rem 0;">
+        <h4>📋 Información del Préstamo</h4>
+        <p><strong>Solicitado por:</strong> {{ prestamo.usuario_bibliotecario }}</p>
+        <p><strong>Fecha de solicitud:</strong> {{ prestamo.fecha_prestamo.strftime('%d/%m/%Y %H:%M') }}</p>
+        <p><strong>Devolución estimada:</strong> {{ prestamo.fecha_devolucion_estimada.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Días transcurridos:</strong> {{ (now().date() - prestamo.fecha_prestamo.date()).days }} días</p>
+    </div>
+    
+    <div class="alert warning">
+        <p>⚠️ <strong>Confirmar finalización del préstamo</strong></p>
+        <p>Esta acción marcará el libro como disponible para nuevos préstamos.</p>
+        <p>Verifique que el usuario haya devuelto el libro o que el préstamo haya expirado.</p>
+    </div>
+    
+    <form method="post" class="form" onsubmit="return confirm('¿Confirmar finalización del préstamo?')">
+        <div class="form-group">
+            <label for="motivo">Motivo de finalización:</label>
+            <select name="motivo" id="motivo" class="form-control">
+                <option value="devuelto">📚 Libro devuelto</option>
+                <option value="no_retirado">⏰ No retirado (pasaron 3 días)</option>
+                <option value="otro">📝 Otro motivo</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="observaciones">Observaciones (opcional):</label>
+            <textarea name="observaciones" id="observaciones" rows="3" 
+                      placeholder="Notas sobre el estado del libro, etc."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button class="btn" type="submit">✅ Confirmar Finalización</button>
+            <a class="btn ghost" href="{{ url_for('listar_libros') }}">Cancelar</a>
+        </div>
+    </form>
+    {% else %}
+    <div class="alert warning">
+        <p>⚠️ No se encontró información del préstamo activo.</p>
+        <p>Es posible que el préstamo ya haya sido finalizado o que haya un error.</p>
+    </div>
+    
+    <div class="form-actions">
+        <a class="btn" href="{{ url_for('listar_libros') }}">Volver a la lista</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

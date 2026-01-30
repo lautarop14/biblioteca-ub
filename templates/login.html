@@ -1,16 +1,27 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <div class="card">
-    <h2>Iniciar sesión</h2>
-    <p> Ingresa con las credenciales otorgadas para acceder al menú.</p>
-    <form method="post">
-      <label>Usuario:</label><br />
-      <input name="usuario" required><br />
-      <label>Contraseña:</label><br />
-      <input name="password" type="password" required><br />
-      <button type="submit">Ingresar</button>
+<div class="login-wrap">
+  <div class="card login-card">
+
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
+
+    <h2 style="text-align: center; margin-bottom: 0.5rem;">Iniciar Sesión</h2>
+    <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Sistema de Biblioteca UB</p>
+
+    <form method="post" class="form">
+      <div style="text-align: left;">
+        <label style="font-weight: 600; display: block; margin-bottom: 5px;">Usuario</label>
+        <input name="usuario" required autofocus placeholder="Usuario">
+      </div>
+
+      <div style="text-align: left;">
+        <label style="font-weight: 600; display: block; margin-bottom: 5px;">Contraseña</label>
+        <input name="password" type="password" required placeholder="••••••">
+      </div>
+
+      <button type="submit" class="btn btn-block" style="margin-top: 10px;">Ingresar</button>
     </form>
-    <p class="muted">Credenciales por defecto: <strong>admin / admin123</strong></p>
-    <p class="muted">Si tiene inconvenientes para inciar sesión, comuníquese a lautaro.paz@comunidad.ub.edu.ar</p>
+
   </div>
+</div>
 {% endblock %}
