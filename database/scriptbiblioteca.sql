@@ -45,6 +45,17 @@ CREATE TABLE IF NOT EXISTS libro_autor (
     FOREIGN KEY (autor_id) REFERENCES autores(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS prestamos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    libro_id INT NOT NULL,
+    usuario_bibliotecario VARCHAR(50) NOT NULL,
+    fecha_prestamo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_devolucion_estimada DATE,
+    fecha_devolucion_real DATE,
+    estado ENUM('activo', 'finalizado') DEFAULT 'activo',
+    FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE
+);
+
 INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo, admin)
 SELECT 'admin', SHA2('admin123', 256), 'Administrador Principal', TRUE
 WHERE NOT EXISTS (SELECT 1 FROM bibliotecarios WHERE usuario = 'admin');
