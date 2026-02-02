@@ -49,11 +49,13 @@ CREATE TABLE IF NOT EXISTS prestamos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     libro_id INT NOT NULL,
     usuario_bibliotecario VARCHAR(50) NOT NULL,
+    usuario_id INT NOT NULL,
     fecha_prestamo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_devolucion_estimada DATE,
     fecha_devolucion_real DATE,
-    estado ENUM('activo', 'finalizado') DEFAULT 'activo',
-    FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE
+    estado ENUM('activo', 'devuelto') DEFAULT 'activo',
+    FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES bibliotecarios(id)
 );
 
 INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo, admin)
