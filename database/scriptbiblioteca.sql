@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS prestamos (
     fecha_devolucion_real DATE,
     estado ENUM('activo', 'devuelto') NOT NULL DEFAULT 'activo',
     FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES bibliotecarios(id)
+    FOREIGN KEY (usuario_id) REFERENCES bibliotecarios(id) ON DELETE CASCADE
 );
 
 INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo, admin)
