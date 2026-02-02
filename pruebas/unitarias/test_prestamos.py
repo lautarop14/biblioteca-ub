@@ -25,7 +25,7 @@ def test_prestamo_libro_disponible(mock_db):
         ("2025-01-01",)   # fecha devolución estimada
     ]
 
-    ok, mensaje = core.solicitar_prestamo(1, "usuario_test")
+    ok, mensaje = core.solicitar_prestamo(1, "lautarop", 2)
 
     assert ok is True
     assert "Solicitud de préstamo registrada" in mensaje
@@ -34,7 +34,7 @@ def test_prestamo_libro_prestado(mock_db):
     # Libro NO disponible
     mock_db.fetchone.return_value = (False,)
 
-    ok, mensaje = core.solicitar_prestamo(1, "usuario_test")
+    ok, mensaje = core.solicitar_prestamo(1, "lautarop", 2)
 
     assert ok is False
     assert mensaje == "El libro no está disponible para préstamo"
