@@ -139,6 +139,8 @@ Gestionar libros:
 
 Editar o eliminar libros desde la lista
 
+Solicitar préstamos de libros disponibles y devolverlos
+
 Buscar información:
 
 "Buscar por título": Encontrar libros por nombre
@@ -146,6 +148,8 @@ Buscar información:
 "Buscar por autor": Libros de un autor específico
 
 "Buscar por asignatura": Libros por materia
+
+Ver préstamos activos en el momento
 
 Administrar:
 
@@ -155,17 +159,19 @@ Administrar:
 
 Cerrar sesión cuando termines
 
+Agregar y eliminar usuarios lectores/no administradores
+
 🔧 Configuración Avanzada
 Base de Datos MySQL
 El script database/scriptbiblioteca.sql crea:
 
 Base de datos biblioteca_db
 
-Tablas: bibliotecarios, libros, autores, libro_autor
+Tablas: bibliotecarios, libros, autores, libro_autor, prestamos
 
 Usuario administrador por defecto
 
-Datos de ejemplo
+Usuario lector por defecto
 
 Variables de Entorno (.env)
 env
@@ -245,6 +251,8 @@ bibliotecarios: Usuarios del sistema
 
 libros: Información de libros con ISBN único
 
+prestamos: Información de préstamos activos y finalizados
+
 autores: Autores con nombre único
 
 libro_autor: Relación muchos-a-muchos
@@ -271,3 +279,5 @@ Revisa los mensajes de error en la consola
 Confirma que MySQL esté funcionando
 
 Asegúrate de que el archivo .env tenga las credenciales correctas
+
+Comuníquese con los desarrolladores
