@@ -11,7 +11,7 @@ def test_01_login_exitoso(client):
 
 
 def test_02_login_invalido(client):
-    r = client.post("/login", data={"usuario": "xxx", "password": "yyy"})
+    r = client.post("/login", data={"usuario": "zzz", "password": "yyy"})
     assert "Usuario o contraseña inválidos" in r.data.decode("utf-8")
 
 
