@@ -14,24 +14,21 @@
                         <strong>Asignatura:</strong> {{ libro.asignatura or '—' }}<br>
                         <strong>Estado:</strong> 
                         <span class="{% if libro.disponible %}disponible{% else %}no-disponible{% endif %}">
-                            {% if libro.disponible %}✅ Disponible{% else %}❌ No disponible{% endif %}
+                            {% if libro.disponible %}Disponible{% else %}No disponible{% endif %}
                         </span>
                     </div>
                 </div>
                 <div class="actions">
-                    <!-- Botón SOLICITAR PRÉSTAMO para todos los usuarios logueados -->
                     {% if libro.disponible %}
-                    <a class="btn" href="{{ url_for('solicitar_prestamo', libro_id=libro.id) }}">Solicitar Préstamo</a>
+                    <a class="btn" href="{{ url_for('solicitar_prestamo', libro_id=libro.id) }}">Préstamo</a>
                     {% else %}
-                        <!-- Mostrar botón VER PRÉSTAMOS solo para ADMIN -->
                         {% if session.rol == 'admin' %}
-                        <a class="btn" href="{{ url_for('listar_prestamos') }}">Ver préstamos</a>
+                        <a class="btn" href="{{ url_for('registrar_devolucion', libro_id=libro.id) }}">Fin de préstamo</a>
                         {% else %}
-                        <span class="btn disabled" style="background-color: #ccc; color: #666; cursor: not-allowed;">No disponible</span>
+                        <span class="btn disabled" style="background-color: #ccc; color: #666; cursor: not-allowed;">Libro no disponible</span>
                         {% endif %}
                     {% endif %}
                     
-                    <!-- Opciones SOLO para ADMINISTRADORES -->
                     {% if session.rol == 'admin' %}
                     <a class="btn" href="{{ url_for('editar_libro', libro_id=libro.id) }}">Editar</a>
                     <form method="post" action="{{ url_for('eliminar_libro', libro_id=libro.id) }}" 
