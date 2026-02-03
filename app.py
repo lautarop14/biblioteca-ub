@@ -10,8 +10,14 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET', 'cambiame_en_produccion')
 
 core.crear_tablas()
-
-# ===== DECORADORES PARA CONTROL DE ACCESO =====
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+    
+# CONTROL DE ACCESO
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -41,19 +47,23 @@ def home():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    if session.get('logged_in'):
+        return redirect(url_for('menu'))
     if request.method == 'POST':
         usuario = request.form.get('usuario','').strip()
         password = request.form.get('password','')
-        ok, nombre, rol = core.verificar_login_usuario(usuario, password)
+        ok, usuario_id, nombre, rol = core.verificar_login_usuario(usuario, password)
         if ok:
             session['logged_in'] = True
             session['usuario'] = usuario
+            session['usuario_id'] = usuario_id
             session['nombre'] = nombre
             session['rol'] = rol
             flash(f'Bienvenido/a, {nombre} ({rol})', 'success')
             return redirect(url_for('menu'))
         else:
             flash('Usuario o contraseña inválidos', 'danger')
+            return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/logout')
@@ -72,30 +82,6 @@ def menu():
 def listar_libros():
     libros = core.cargar_libros_con_disponibilidad() 
     return render_template('libros.html', libros=libros)
-
-@app.route('/buscar', methods=['GET','POST'])
-@login_required
-def buscar():
-    libro = None
-    libros_por_autor = None
-    libros_por_asignatura = None
-    if request.method == 'POST':
-        if 'titulo' in request.form:
-            titulo = request.form.get('titulo','').strip()
-            libro = core.buscar_libro_por_titulo(titulo)
-            if not libro:
-                flash('Libro no encontrado.', 'warning')
-        elif 'autor' in request.form:
-            autor = request.form.get('autor','').strip()
-            libros_por_autor = core.listar_libros_por_autor(autor)
-            if not libros_por_autor:
-                flash('No se encontraron libros de ese autor.', 'warning')
-        elif 'asignatura' in request.form:
-            asign = request.form.get('asignatura','').strip()
-            libros_por_asignatura = core.listar_libros_por_asignatura(asign)
-            if not libros_por_asignatura:
-                flash('No se encontraron libros de esa asignatura.', 'warning')
-    return render_template('buscar.html', libro=libro, libros_por_autor=libros_por_autor, libros_por_asignatura=libros_por_asignatura)
 
 @app.route('/libros/nuevo', methods=['GET','POST'])
 @admin_required
@@ -131,9 +117,8 @@ def editar_libro(libro_id):
             return redirect(url_for('listar_libros'))
         else:
             flash('Error al modificar libro.', 'danger')
-    # Cargar datos del libro por id
-    libro = None
 
+    libro = None
     conn = core.crear_conexion()
     if conn:
         cur = conn.cursor(dictionary=True)
@@ -232,8 +217,6 @@ def limpiar_autores():
     flash(f'Se eliminaron {eliminados} autores huérfanos', 'success')
     return redirect(url_for('listar_autores'))
 
-# ===== RUTAS PARA PRÉSTAMOS Y DEVOLUCIONES (ACTUALIZADAS) =====
-
 @app.route('/libros/solicitar_prestamo/<int:libro_id>', methods=['GET', 'POST'])
 @login_required
 def solicitar_prestamo(libro_id):
@@ -262,7 +245,8 @@ def solicitar_prestamo(libro_id):
     
     if request.method == 'POST':
         usuario = session.get('usuario')
-        ok, mensaje = core.solicitar_prestamo(libro_id, usuario)
+        usuario_id = session.get('usuario_id')
+        ok, mensaje = core.solicitar_prestamo(libro_id, usuario, usuario_id)
         if ok:
             flash(mensaje, 'success')
             return redirect(url_for('listar_libros'))
@@ -314,8 +298,6 @@ def listar_prestamos():
     prestamos = core.obtener_prestamos_activos()
     return render_template('prestamos.html', prestamos=prestamos)
 
-# ===== RUTAS PARA GESTIÓN DE USUARIOS (SOLO ADMIN) =====
-
 @app.route('/usuarios')
 @admin_required
 def listar_usuarios():
@@ -333,7 +315,7 @@ def nuevo_usuario():
         
         if password != confirmar_password:
             flash('Las contraseñas no coinciden', 'danger')
-            return render_template('form_usuario.html')
+            return redirect(url_for('nuevo_usuario'))
         
         ok, mensaje = core.crear_usuario_lector(usuario, nombre_completo, password)
         if ok:
@@ -341,6 +323,7 @@ def nuevo_usuario():
             return redirect(url_for('listar_usuarios'))
         else:
             flash(mensaje, 'danger')
+            return redirect(url_for('nuevo_usuario'))
     
     return render_template('form_usuario.html')
 
@@ -353,42 +336,6 @@ def eliminar_usuario(usuario_id):
     else:
         flash(mensaje, 'danger')
     return redirect(url_for('listar_usuarios'))
-
-@app.route('/libros/confirmar_prestamo/<int:libro_id>', methods=['GET', 'POST'])
-@admin_required
-def confirmar_prestamo(libro_id):
-    """Confirmar que el libro fue retirado físicamente (solo ADMIN)"""
-    # Obtener información del libro
-    conexion = core.crear_conexion()
-    libro = None
-    if conexion:
-        cur = conexion.cursor(dictionary=True)
-        cur.execute("""
-            SELECT l.id, l.titulo, l.disponible,
-                   GROUP_CONCAT(a.nombre SEPARATOR '; ') AS autores
-            FROM libros l
-            LEFT JOIN libro_autor la ON la.libro_id = l.id
-            LEFT JOIN autores a ON a.id = la.autor_id
-            WHERE l.id = %s
-            GROUP BY l.id
-        """, (libro_id,))
-        libro = cur.fetchone()
-        cur.close()
-        conexion.close()
-    
-    if not libro:
-        flash('Libro no encontrado', 'danger')
-        return redirect(url_for('listar_libros'))
-    
-    if request.method == 'POST':
-        ok, mensaje = core.confirmar_prestamo(libro_id)
-        if ok:
-            flash(mensaje, 'success')
-            return redirect(url_for('listar_prestamos'))
-        else:
-            flash(mensaje, 'danger')
-    
-    return render_template('confirmar_prestamo.html', libro=libro)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
