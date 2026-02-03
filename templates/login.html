@@ -1,26 +1,44 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="login-wrap">
-  <div class="card login-card">
+  <div class="card login-card login-grid">
 
-    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
+    <div class="login-info-col">
+      <div style="font-size: 2.5rem;">🎓</div>
+      <h2>Sistema de Biblioteca UB</h2>
 
-    <h2 style="text-align: center; margin-bottom: 0.5rem;">Iniciar Sesión</h2>
-    <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Sistema de Biblioteca UB</p>
+      <p class="login-description">
+        Sistema de gestión de Biblioteca para la
+        Tecnicatura en Programación.<br>
+        Ingrese al sistema con las credenciales otorgadas.
+      </p>
+        <p class="login-help">
+          ¿Problemas para acceder? Comuníquese a<br>
+          <strong>lautaro.paz@comunidad.ub.edu.ar</strong>
+        </p>
 
-    <form method="post" class="form">
-      <div style="text-align: left;">
-        <label style="font-weight: 600; display: block; margin-bottom: 5px;">Usuario</label>
-        <input name="usuario" required autofocus placeholder="Usuario">
-      </div>
+    </div>
 
-      <div style="text-align: left;">
-        <label style="font-weight: 600; display: block; margin-bottom: 5px;">Contraseña</label>
-        <input name="password" type="password" required placeholder="••••••">
-      </div>
+    <div class="login-form-col">
+      <h2>Iniciar Sesión</h2>
+      <p class="login-subtitle">Acceso al sistema</p>
 
-      <button type="submit" class="btn btn-block" style="margin-top: 10px;">Ingresar</button>
-    </form>
+      <form method="post" class="form">
+        <div>
+          <label style="font-weight: 600; display: block; margin-bottom: 5px;">Usuario</label>
+          <input name="usuario" required autofocus placeholder="Usuario">
+        </div>
+
+        <div>
+          <label style="font-weight: 600; display: block; margin-bottom: 5px;">Contraseña</label>
+          <input name="password" type="password" required placeholder="••••••">
+        </div>
+
+        <button type="submit" class="btn btn-block">
+          Ingresar
+        </button>
+      </form>
+    </div>
 
   </div>
 </div>
