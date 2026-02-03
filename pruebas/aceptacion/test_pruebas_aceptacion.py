@@ -129,37 +129,52 @@ def test_16_alta_libro_completa(client, login_admin):
 
 
 def test_17_alta_libro_fallida(client, login_admin):
-    r = client.post("/libros/nuevo", data={"titulo": ""})
+    r = client.post("/libros/nuevo", data={
+        "titulo": "",
+        "autores": "",
+        "paginas": "80",
+        "isbn": "9783161484100",
+        "asignatura": "Base de datos"
+    })
     assert b"Error al agregar libro" in r.data
 
 
 def test_18_editar_libro(client, login_admin):
-    core.insertar_libro_dict("Editar", ["Autor"], 10, None, "")
+    core.insertar_libro_dict("Gestión de Bases", ["Autor"], 10, 222, "Base de datos")
     libro = core.buscar_libro_por_titulo("Editar")[0]
     r = client.post(f"/libros/editar/{libro['id']}", data={
-        "titulo": "Editado",
-        "autores": "Autor",
-        "paginas": "20",
+        "titulo": "[EDITADO CON SELENIUM]",
+        "autores": "Autor Modificado",
+        "paginas": "10",
         "isbn": "222",
-        "asignatura": ""
+        "asignatura": "Base de datos"
     })
     assert r.status_code == 302
 
 
 def test_19_editar_libro_campos_invalidos(client, login_admin):
-    r = client.post("/libros/editar/99999", data={})
+    core.insertar_libro_dict("Sistemas de Información Gerencial", ["Autor"], 10, 222, "Base de datos")
+    core.insertar_libro_dict("Ingeniería en Software", ["Autor"], 10, 9786071503145, "Base de datos")
+    libro = core.buscar_libro_por_titulo("Editar")[0]
+    r = client.post(f"/libros/editar/{libro['id']}", data={
+        "titulo": "Programación en Java",
+        "autores": "Dante Soprani",
+        "paginas": "10",
+        "isbn": "9786071503145",
+        "asignatura": "Base de datos"
+    })
     assert r.status_code == 302
 
 
 def test_20_eliminar_libro(client, login_admin):
-    core.insertar_libro_dict("Eliminar", ["Autor"], 10, None, "")
+    core.insertar_libro_dict("Eliminar", ["Autor"], 10, None, "Programación II")
     libro = core.buscar_libro_por_titulo("Eliminar")[0]
     r = client.post(f"/libros/eliminar/{libro['id']}")
     assert r.status_code == 302
 
 
 def test_21_eliminar_libro_inexistente(client, login_admin):
-    r = client.post("/libros/eliminar/99999")
+    r = client.post("/libros/eliminar/23")
     assert r.status_code == 302
 
 
@@ -169,12 +184,12 @@ def test_22_alta_libro_por_lector(client, login_lector):
 
 
 def test_23_editar_libro_por_lector(client, login_lector):
-    r = client.get("/libros/editar/1")
+    r = client.get("/libros/editar/8")
     assert r.status_code == 302
 
 
 def test_24_eliminar_libro_por_lector(client, login_lector):
-    r = client.post("/libros/eliminar/1")
+    r = client.post("/libros/eliminar/8")
     assert r.status_code == 302
 
 
@@ -183,7 +198,7 @@ def test_24_eliminar_libro_por_lector(client, login_lector):
 # =========================
 
 def test_25_prestamo_libro_disponible(client, login_lector):
-    core.insertar_libro_dict("Prestamo", ["Autor"], 10, None, "")
+    core.insertar_libro_dict("Prestamo", ["Autor"], 10, None, "Programación II")
     libro = core.buscar_libro_por_titulo("Prestamo")[0]
     r = client.post(f"/libros/solicitar_prestamo/{libro['id']}")
     assert r.status_code == 302
@@ -205,7 +220,7 @@ def test_28_devolver_libro_disponible(client, login_admin):
 
 
 def test_29_devolver_libro_por_lector(client, login_lector):
-    r = client.post("/libros/registrar_devolucion/1")
+    r = client.post("/libros/registrar_devolucion/21")
     assert r.status_code == 302
 
 
@@ -249,7 +264,7 @@ def test_36_busqueda_autor_no_exitosa(client, login_admin):
 
 
 def test_37_busqueda_asignatura_con_eleccion(client, login_admin):
-    r = client.post("/buscar/asignatura", data={"asignatura": "Programación"})
+    r = client.post("/buscar/asignatura", data={"asignatura": "Programación I"})
     assert r.status_code == 200
 
 
