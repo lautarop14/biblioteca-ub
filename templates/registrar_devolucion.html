@@ -8,7 +8,7 @@
         <p><strong>Autor(es):</strong> {{ libro.autores or 'No especificado' }}</p>
         <p><strong>Estado:</strong> 
             <span class="no-disponible">
-                ❌ Prestado/Reservado
+                ❌ Prestado
             </span>
         </p>
     </div>
@@ -26,7 +26,7 @@
         </div>
         
         <div class="form-actions">
-            <button class="btn" type="submit">✅ Registrar Devolución</button>
+            <button class="btn" type="submit">Registrar Devolución</button>
             <a class="btn ghost" href="{{ url_for('listar_prestamos') }}">Cancelar</a>
         </div>
     </form>
