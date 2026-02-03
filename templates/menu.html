@@ -20,16 +20,16 @@
         <a class="tile" href="{{ url_for('listar_prestamos') }}">
             <span style="font-size: 1.8rem;">📋</span> Ver préstamos activos
         </a>
+        <a class="tile" href="{{ url_for('listar_autores') }}">
+            <span style="font-size: 1.8rem;">👥</span> Listar autores
+        </a>
         
         {% if session.rol == 'admin' %}
         <a class="tile" href="{{ url_for('nuevo_libro') }}">
             <span style="font-size: 1.8rem;">➕</span> Dar de alta libro
         </a>
-        <a class="tile" href="{{ url_for('listar_autores') }}">
-            <span style="font-size: 1.8rem;">👥</span> Listar autores
-        </a>
         <a class="tile" href="{{ url_for('listar_usuarios') }}">
-            <span style="font-size: 1.8rem;">👥</span> Gestión de usuarios
+            <span style="font-size: 1.8rem;">👥</span> Lista de usuarios
         </a>
         {% endif %}
         
@@ -41,4 +41,5 @@
         </a>
     </div>
 </div>
+
 {% endblock %}
