@@ -30,14 +30,7 @@ def crear_tablas():
         try:
             cursor = conexion.cursor()
             
-            # Eliminar tabla prestamos primero para evitar problemas con ENUM
-            try:
-                cursor.execute("DROP TABLE IF EXISTS prestamos")
-                print("Tabla prestamos eliminada para recrear con ENUM correcto")
-            except Error as e:
-                print(f"Nota: No se pudo eliminar tabla prestamos: {e}")
-            
-            # Crear tabla bibliotecarios con campo admin
+            # Crear tablas
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS bibliotecarios (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +42,6 @@ def crear_tablas():
                 )
             """)
             
-            # Crear tabla libros
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS libros (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,7 +53,6 @@ def crear_tablas():
                 )
             """)
             
-            # Crear tabla autores
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS autores (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -69,7 +60,6 @@ def crear_tablas():
                 )
             """)
             
-            # Crear tabla relación libro-autor
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS libro_autor (
                     libro_id INT,
@@ -80,26 +70,21 @@ def crear_tablas():
                 )
             """)
             
-            # Crear tabla préstamos con estado CORRECTO
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS prestamos (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     libro_id INT NOT NULL,
                     usuario_bibliotecario VARCHAR(50) NOT NULL,
+                    usuario_id INT NOT NULL,
                     fecha_prestamo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     fecha_devolucion_estimada DATE,
                     fecha_devolucion_real DATE,
-                    estado ENUM('reservado', 'activo', 'devuelto', 'cancelado') DEFAULT 'reservado',
-                    FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE
+                    estado ENUM('activo', 'devuelto') NOT NULL DEFAULT 'activo',
+                    FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE,
+                    FOREIGN KEY (usuario_id) REFERENCES bibliotecarios(id) ON DELETE CASCADE
                 )
             """)
-            
-            # Inicializar la columna disponible para libros existentes
-            try:
-                cursor.execute("UPDATE libros SET disponible = TRUE WHERE disponible IS NULL")
-            except Error as e:
-                print(f"Nota: No se pudo inicializar columna disponible: {e}")
-            
+                        
             # Crear usuario admin con admin=True si no existe
             cursor.execute("SELECT COUNT(*) FROM bibliotecarios WHERE usuario = 'admin'")
             if cursor.fetchone()[0] == 0:
@@ -136,7 +121,7 @@ def crear_tablas():
             return False
     return False
 
-# FUNCIONES PARA LIBROS (sin cambios)
+# FUNCIONES PARA LIBROS
 def cargar_libros():
     libros = []
     conexion = crear_conexion()
@@ -321,7 +306,6 @@ def limpiar_todos_autores_huerfanos():
         try:
             cursor = conexion.cursor()
 
-            # Método más robusto para MySQL
             cursor.execute("""
                 DELETE a FROM autores a
                 LEFT JOIN libro_autor la ON a.id = la.autor_id
@@ -477,10 +461,10 @@ def listar_libros_por_asignatura(asignatura_parcial):
                 FROM libros l
                 LEFT JOIN libro_autor la ON l.id = la.libro_id
                 LEFT JOIN autores a ON a.id = la.autor_id
-                WHERE l.asignatura LIKE %s
+                WHERE l.asignatura = %s
                 GROUP BY l.id
                 ORDER BY l.titulo
-            """, (f'%{asignatura_parcial}%',))
+            """, (f'{asignatura_parcial}',))
             resultados = cursor.fetchall()
             for libro in resultados:
                 autores = libro['autores'].split('; ') if libro['autores'] else []
@@ -505,22 +489,22 @@ def listar_libros_por_asignatura(asignatura_parcial):
             conexion.close()
     return libros
 
-# FUNCIONES DE USUARIOS (sin cambios)
+# FUNCIONES DE USUARIOS 
 def verificar_login_usuario(usuario, password):
     conexion = crear_conexion()
     if conexion:
         try:
             cursor = conexion.cursor()
-            cursor.execute("SELECT password_hash, nombre_completo, admin FROM bibliotecarios WHERE usuario = %s", (usuario,))
+            cursor.execute("SELECT password_hash, id, nombre_completo, admin FROM bibliotecarios WHERE usuario = %s", (usuario,))
             row = cursor.fetchone()
             cursor.close(); conexion.close()
             if row:
-                password_hash_db, nombre, admin = row
+                password_hash_db, usuario_id, nombre, admin = row
                 if hashlib.sha256(password.encode()).hexdigest() == password_hash_db:
                     # Convertir admin boolean a string 'admin' o 'lector'
                     rol = 'admin' if admin else 'lector'
-                    return True, nombre, rol
-            return False, None, None
+                    return True, usuario_id, nombre, rol
+            return False, None, None, None
         except Error as e:
             print(f"Error al verificar login: {e}")
             try:
@@ -528,8 +512,8 @@ def verificar_login_usuario(usuario, password):
             except:
                 pass
             conexion.close()
-            return False, None, None
-
+            return False, None, None, None
+            
 def cambiar_password_usuario(usuario_actual, password_actual, nueva_password):
     if len(nueva_password.strip()) < 4:
         return False, "La contraseña debe tener al menos 4 caracteres"
@@ -579,50 +563,46 @@ def obtener_asignaturas():
     ]
     return asignaturas
 
-# FUNCIONES PARA PRÉSTAMOS Y DEVOLUCIONES (ACTUALIZADAS)
-
-def solicitar_prestamo(libro_id, usuario_solicitante):
-    """Solicita un préstamo - el libro se reserva por 3 días"""
+# FUNCIONES PARA PRÉSTAMOS Y DEVOLUCIONES
+def solicitar_prestamo(libro_id, usuario_solicitante, usuario_id):
+    """Solicita un préstamo"""
     conexion = crear_conexion()
     if conexion:
         try:
             cursor = conexion.cursor()
-            
+
             # Verificar que el libro esté disponible
             cursor.execute("SELECT disponible FROM libros WHERE id = %s", (libro_id,))
             libro = cursor.fetchone()
-            
+
             if not libro:
                 cursor.close()
                 conexion.close()
                 return False, "Libro no encontrado"
-            
+
             if not libro[0]:  # Si no está disponible
                 cursor.close()
                 conexion.close()
                 return False, "El libro no está disponible para préstamo"
-            
-            # Calcular fecha de devolución estimada (3 días hábiles)
-            cursor.execute("SELECT DATE_ADD(CURDATE(), INTERVAL 3 DAY)")
+
+            cursor.execute("SELECT DATE_ADD(CURDATE(), INTERVAL 30 DAY)")
             fecha_devolucion_estimada = cursor.fetchone()[0]
-            
-            # IMPORTANTE: Cambiar 'solicitado' por 'reservado'
+
             cursor.execute("""
-                INSERT INTO prestamos (libro_id, usuario_bibliotecario, 
+                INSERT INTO prestamos (libro_id, usuario_bibliotecario, usuario_id,
                                     fecha_prestamo, fecha_devolucion_estimada, estado)
-                VALUES (%s, %s, CURDATE(), %s, 'reservado')
-            """, (libro_id, usuario_solicitante, fecha_devolucion_estimada))
-            
-            # Marcar libro como no disponible inmediatamente
+                VALUES (%s, %s, %s, CURDATE(), %s, 'activo')
+            """, (libro_id, usuario_solicitante, usuario_id, fecha_devolucion_estimada))
+
             cursor.execute("UPDATE libros SET disponible = FALSE WHERE id = %s", (libro_id,))
-            
+
             conexion.commit()
             prestamo_id = cursor.lastrowid
             cursor.close()
             conexion.close()
-            
-            return True, f"Solicitud de préstamo registrada. ID: {prestamo_id}. El libro está reservado por 3 días hábiles."
-            
+
+            return True, f"Solicitud de préstamo registrada. El libro podrá ser retirado dentro de los siguientes 3 días hábiles."
+
         except Error as e:
             print(f"Error al solicitar préstamo: {e}")
             try:
@@ -633,51 +613,7 @@ def solicitar_prestamo(libro_id, usuario_solicitante):
             conexion.close()
             return False, f"Error en el sistema: {e}"
     return False, "Error de conexión a la base de datos"
-
-def confirmar_prestamo(libro_id):
-    """Cuando el usuario retira el libro físicamente (solo admin)"""
-    conexion = crear_conexion()
-    if conexion:
-        try:
-            cursor = conexion.cursor()
-            
-            # Buscar la reserva más reciente
-            cursor.execute("""
-                SELECT id FROM prestamos 
-                WHERE libro_id = %s AND estado = 'reservado'
-                ORDER BY fecha_prestamo DESC LIMIT 1
-            """, (libro_id,))
-            prestamo = cursor.fetchone()
-            
-            if not prestamo:
-                cursor.close()
-                conexion.close()
-                return False, "No hay reserva activa para este libro"
-            
-            # Cambiar estado a 'activo' (préstamo confirmado)
-            cursor.execute("""
-                UPDATE prestamos 
-                SET estado = 'activo'
-                WHERE id = %s
-            """, (prestamo[0],))
-            
-            conexion.commit()
-            cursor.close()
-            conexion.close()
-            
-            return True, "Préstamo confirmado. Libro retirado físicamente."
-            
-        except Error as e:
-            print(f"Error al confirmar préstamo: {e}")
-            try:
-                conexion.rollback()
-                cursor.close()
-            except:
-                pass
-            conexion.close()
-            return False, f"Error en el sistema: {e}"
-    return False, "Error de conexión a la base de datos"
-
+    
 def registrar_devolucion(libro_id):
     """Registra la devolución de un libro (solo admin)"""
     conexion = crear_conexion()
@@ -699,10 +635,9 @@ def registrar_devolucion(libro_id):
                 conexion.close()
                 return False, "El libro ya está disponible"
             
-            # Buscar préstamo activo o reservado más reciente y obtener también el estado
             cursor.execute("""
                 SELECT id, estado FROM prestamos 
-                WHERE libro_id = %s AND estado IN ('reservado', 'activo')
+                WHERE libro_id = %s AND estado = 'activo'
                 ORDER BY fecha_prestamo DESC LIMIT 1
             """, (libro_id,))
             prestamo = cursor.fetchone()
@@ -714,36 +649,12 @@ def registrar_devolucion(libro_id):
             
             prestamo_id, estado = prestamo
             
-            # Si estaba reservado pero no retirado
-            if estado == 'reservado':
-                # Verificar si pasaron más de 3 días
-                cursor.execute("""
-                    SELECT DATEDIFF(CURDATE(), fecha_devolucion_estimada) 
-                    FROM prestamos WHERE id = %s
-                """, (prestamo_id,))
-                dias_pasados = cursor.fetchone()
-                
-                if dias_pasados and dias_pasados[0] > 3:
-                    # Cancelar reserva por no retirar
-                    cursor.execute("""
-                        UPDATE prestamos 
-                        SET estado = 'cancelado', fecha_devolucion_real = CURDATE()
-                        WHERE id = %s
-                    """, (prestamo_id,))
-                    cursor.execute("UPDATE libros SET disponible = TRUE WHERE id = %s", (libro_id,))
-                    conexion.commit()
-                    cursor.close()
-                    conexion.close()
-                    return True, "Reserva cancelada. Libro no fue retirado en 3 días."
-            
-            # Si estaba activo o dentro del plazo de reserva
             cursor.execute("""
                 UPDATE prestamos 
                 SET estado = 'devuelto', fecha_devolucion_real = CURDATE()
                 WHERE id = %s
             """, (prestamo_id,))
             
-            # Marcar libro como disponible
             cursor.execute("UPDATE libros SET disponible = TRUE WHERE id = %s", (libro_id,))
             
             conexion.commit()
@@ -764,21 +675,22 @@ def registrar_devolucion(libro_id):
     return False, "Error de conexión a la base de datos"
 
 def obtener_prestamos_activos():
-    """Obtiene todos los préstamos activos y reservados"""
+    """Obtiene todos los préstamos activos"""
     conexion = crear_conexion()
     prestamos = []
     if conexion:
         try:
             cursor = conexion.cursor(dictionary=True)
             cursor.execute("""
-                SELECT p.id, p.libro_id, l.titulo, p.usuario_bibliotecario, 
+                SELECT p.id, p.libro_id, l.titulo, p.usuario_id, b.usuario,
                     p.fecha_prestamo, p.fecha_devolucion_estimada, p.estado,
                     GROUP_CONCAT(a.nombre SEPARATOR '; ') as autores
                 FROM prestamos p
                 JOIN libros l ON p.libro_id = l.id
+                JOIN bibliotecarios b ON p.usuario_id = b.id
                 LEFT JOIN libro_autor la ON l.id = la.libro_id
                 LEFT JOIN autores a ON la.autor_id = a.id
-                WHERE p.estado IN ('reservado', 'activo')  # Cambiado
+                WHERE p.estado='activo'
                 GROUP BY p.id
                 ORDER BY p.fecha_devolucion_estimada
             """)
@@ -794,10 +706,10 @@ def obtener_prestamos_activos():
             conexion.close()
     return prestamos
 
-# FUNCIONES PARA GESTIÓN DE USUARIOS
+# FUNCIONES PARA LISTA DE USUARIOS
 
 def crear_usuario_lector(usuario, nombre_completo, password):
-    """Crea un nuevo usuario con admin=False (lector)"""
+    """Crea un nuevo usuario lector"""
     if len(password.strip()) < 4:
         return False, "La contraseña debe tener al menos 4 caracteres"
     
@@ -813,7 +725,6 @@ def crear_usuario_lector(usuario, nombre_completo, password):
                 conexion.close()
                 return False, "El usuario ya existe"
             
-            # Crear nuevo usuario con admin=False (lector)
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             cursor.execute(
                 "INSERT INTO bibliotecarios (usuario, password_hash, nombre_completo, admin) VALUES (%s, %s, %s, %s)",
@@ -881,7 +792,6 @@ def eliminar_usuario(usuario_id):
                 conexion.close()
                 return False, "No se pueden eliminar usuarios administradores"
             
-            # Eliminar usuario
             cursor.execute("DELETE FROM bibliotecarios WHERE id = %s", (usuario_id,))
             conexion.commit()
             
