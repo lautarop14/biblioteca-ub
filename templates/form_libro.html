@@ -7,7 +7,7 @@
       <input name="titulo" required value="{{ libro.titulo if libro else '' }}">
 
       <label>Autor(es) (separar por ';')</label>
-      <input name="autores" value="{{ libro.autores if libro else '' }}">
+      <input name="autores" required value="{{ libro.autores if libro else '' }}">
 
       <label>Páginas</label>
       <input name="paginas" type="number" value="{{ libro.paginas if libro else '' }}">
