@@ -2,11 +2,11 @@
 {% block content %}
 <div class="card">
     <h2>Solicitar Préstamo de Libro</h2>
-    
+
     <div class="libro-info">
         <h3>{{ libro.titulo }}</h3>
         <p><strong>Autor(es):</strong> {{ libro.autores or 'No especificado' }}</p>
-        <p><strong>Estado actual:</strong> 
+        <p><strong>Estado actual:</strong>
             <span class="{% if libro.disponible %}disponible{% else %}no-disponible{% endif %}">
                 {% if libro.disponible %}✅ Disponible{% else %}❌ No disponible{% endif %}
             </span>
@@ -14,19 +14,31 @@
     </div>
 
     {% if libro.disponible %}
-    <form method="post" class="form" onsubmit="return confirm('¿Confirmar solicitud de préstamo?')">
-        <div class="alert info">
+    <div class="alert info">
             <p><strong>Proceso de préstamo:</strong></p>
             <ol>
-                <li>Solicita el préstamo aquí</li>
-                <li>El libro se reservará por <strong>3 días hábiles</strong></li>
-                <li>Debes retirar el libro en la biblioteca</li>
-                <li>Solo el bibliotecario puede registrar la devolución</li>
+                <li>Solicitá el préstamo acá.</li>
+                <li>El libro te estará esperando por los <strong>siguientes 3 días hábiles</strong>.</li>
+                <li>Debés retirar el libro en la Biblioteca de la Torre Universitaria de la UB en Zabala 1837 1º piso.</li>
+                <li>Pasados los 3 días hábiles, el bibliotecario pondrá el libro a disposición del resto de usuarios.</li>
             </ol>
+            <p><strong>Recomendaciones para el cuidado del libro:</strong></p>
+            <ul>
+                <li>Manipulá el libro con las manos limpias y secas.</li>
+                <li>No escribas, subrayes ni marques las páginas.</li>
+                <li>Evitá doblar hojas o forzar el lomo.</li>
+                <li>No lo expongas a líquidos, comida ni humedad.</li>
+                <li>Transportalo en una mochila o bolso que lo proteja.</li>
+                <li>Devolvelo en la fecha que se te indique para que otros puedan usarlo.</li>
+                <li>El material debe devolverse en las mismas condiciones en que fue entregado.</li>
+                <li><strong>El usuario es responsable por pérdidas o deterioros.</strong></li>
+            </ul>
         </div>
-        
+    <form method="post" class="form" onsubmit="return confirm('¿Confirmar solicitud de préstamo?')">
+
+
         <p><strong>Usuario solicitante:</strong> {{ session.nombre }}</p>
-        
+
         <div class="form-actions">
             <button class="btn" type="submit">Confirmar Solicitud</button>
             <a class="btn ghost" href="{{ url_for('listar_libros') }}">Cancelar</a>
@@ -37,7 +49,7 @@
         <p>⚠️ Este libro no está disponible para préstamo.</p>
         <p>Actualmente se encuentra prestado o reservado por otro usuario.</p>
     </div>
-    
+
     <div class="form-actions">
         <a class="btn" href="{{ url_for('listar_libros') }}">Volver a la lista</a>
         <a class="btn ghost" href="{{ url_for('listar_prestamos') }}">Ver préstamos activos</a>
