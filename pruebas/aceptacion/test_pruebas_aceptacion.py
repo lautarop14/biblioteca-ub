@@ -67,10 +67,10 @@ def test_07_agregar_usuario_lector(client, login_admin):
 
 def test_08_agregar_usuario_lector_invalido(client, login_admin):
     r = client.post("/usuarios/nuevo", data={
-        "usuario": "",
-        "nombre_completo": "",
-        "password": "12",
-        "confirmar_password": "12"
+        "usuario": "admin",
+        "nombre_completo": "Administrador Segundo",
+        "password": "as8731",
+        "confirmar_password": "as8731"
     })
     assert r.status_code == 200
 
